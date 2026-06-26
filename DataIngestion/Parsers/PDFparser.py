@@ -16,8 +16,8 @@ class PDFparser:
             metadata=document.metadata #return a dict
             page_number=metadata['page']+1
             page_content=" ".join(document.page_content.split())
-            
-            content=content+str(page_number)+": "+page_content
+            page_num="PAGE: "+str(page_number)+" "
+            content=content+page_num+page_content
         
         file_name=documents[0].metadata['source']
         
