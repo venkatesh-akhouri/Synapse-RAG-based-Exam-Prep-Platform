@@ -3,8 +3,9 @@ import tempfile
 import os
 from services.ingestion import ParserFactory,ChunkingFactory,EMBEDDINGS
 from DataIngestion.embedder import Embedder
-
+from pydantic_models import ChatRequest,ChatResponse
 from langchain_huggingface import HuggingFaceEmbeddings
+from services.retreival import  retrieve
 
 #initiatise the embedder class
 embedder=Embedder(EMBEDDINGS)
@@ -41,11 +42,25 @@ async def upload_files(files: list[UploadFile]):
     return {"status": "success", "message": f"{len(files)} file(s) processed"}
 
         
-        
-        
-            
-            
-            
-            
+
+#end point for chat
+@app.post("/chat")
+async def chat(request: ChatRequest ):
+    retreival_results=retrieve(request.message,embedder.collection)
+    print("----debugging-----")
+    print(retreival_results["is_covered"])
     
+    #check if
+    if not retreival_results["is_covered"]:
+        
+        return ChatResponse(message="Topic not covered in uploaded materials",
+                            is_covered=False)
+    
+ 
    
+    return ChatResponse(
+        message="thinking",
+        source=retreival_results["sources"][0],
+        is_covered=True
+    )
+    
