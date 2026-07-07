@@ -2,6 +2,12 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import chromadb
 import hashlib
 import os
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+
+ef = SentenceTransformerEmbeddingFunction(
+    model_name="all-mpnet-base-v2"
+)
+
 
 
 class Embedder:
@@ -12,7 +18,8 @@ class Embedder:
         #create the chroma db client
         self.client=chromadb.PersistentClient(path=self.chroma_db_path)
         #create collection
-        self.collection=self.client.get_or_create_collection(name="synapse")
+        self.collection=self.client.get_or_create_collection(name="synapse",
+                                                             embedding_function=ef)
         
         
     def embed_and_store(self,metadata,chunks):
