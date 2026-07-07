@@ -1,5 +1,4 @@
 from langchain_experimental.text_splitter import SemanticChunker as LangchainSemanticChunker
-from langchain_huggingface import HuggingFaceEmbeddings
 import re
 
 class SemanticChunker:
@@ -10,7 +9,8 @@ class SemanticChunker:
         
     
     def text_chunker(self,text):
-        chunks=self.chunker.split_text(text)
+        cleaned_text=re.sub(r'PAGE: \d+',"",text)
+        chunks=self.chunker.split_text(cleaned_text)
         return chunks
     
     
