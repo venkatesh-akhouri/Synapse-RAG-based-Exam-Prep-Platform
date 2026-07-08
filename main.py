@@ -6,9 +6,18 @@ from DataIngestion.embedder import Embedder
 from pydantic_models import ChatRequest,ChatResponse
 from langchain_huggingface import HuggingFaceEmbeddings
 from services.retreival import  retrieve
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
+from services.llm import get_answer
 
+load_dotenv()
+
+
+#initialise groq api key
+GROQ_API_KEY=os.getenv("GROQ_API_KEY")
 #initiatise the embedder class
 embedder=Embedder(EMBEDDINGS)
+
 
 
 app = FastAPI()
@@ -56,11 +65,11 @@ async def chat(request: ChatRequest ):
         return ChatResponse(message="Topic not covered in uploaded materials",
                             is_covered=False)
     
- 
+    
+    query_answer=await get_answer(request.message,retreival_results['chunks'])
    
     return ChatResponse(
-        message="thinking",
+        message=query_answer,
         source=retreival_results["sources"][0],
         is_covered=True
     )
-    
