@@ -1,4 +1,5 @@
 from fastapi import FastAPI,File,UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 import os
 from services.ingestion import ParserFactory,ChunkingFactory,EMBEDDINGS
@@ -21,6 +22,13 @@ embedder=Embedder(EMBEDDINGS)
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/uploadfiles/")
 async def upload_files(files: list[UploadFile]):
