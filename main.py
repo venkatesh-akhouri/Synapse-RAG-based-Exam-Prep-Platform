@@ -3,12 +3,12 @@ import tempfile
 import os
 from services.ingestion import ParserFactory,ChunkingFactory,EMBEDDINGS
 from DataIngestion.embedder import Embedder
-from pydantic_models import ChatRequest,ChatResponse
+from pydantic_models import ChatRequest, ChatResponse, QuizRequest,QuizResponse
 from langchain_huggingface import HuggingFaceEmbeddings
 from services.retreival import  retrieve
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
-from services.llm import get_answer
+from services.llm import get_answer,get_quiz
 
 load_dotenv()
 
@@ -73,3 +73,28 @@ async def chat(request: ChatRequest ):
         source=retreival_results["sources"][0],
         is_covered=True
     )
+
+
+#endpoint for quiz
+
+@app.post("/quiz")
+async def quiz(request: QuizRequest):
+    retireval_results=retrieve(request.topic,embedder.collection)
+    
+    #check if the content exists in the documents
+    if not retireval_results['is_covered']:
+        return QuizResponse(
+            message="Topic not covered in uploaded materials",
+            questions=[])
+    
+    questions=await get_quiz(request.topic,
+                            request.num_questions,
+                             retireval_results['chunks'],
+                            request.format)
+    
+    
+    
+    
+    return QuizResponse(
+        questions=questions)
+        
