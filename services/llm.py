@@ -3,6 +3,7 @@ from groq import AsyncGroq
 from prompts import SYSTEM_PROMPT,get_quiz_prompt
 from dotenv import load_dotenv
 import json
+from langsmith import traceable
 
 load_dotenv()
 
@@ -14,7 +15,7 @@ groq_client=AsyncGroq(api_key=GROQ_API_KEY)
 
 
 
-
+@traceable
 async def get_answer(query,chunks):
     
     #join chunks
@@ -35,6 +36,7 @@ async def get_answer(query,chunks):
 
 #the get quiz function takes the topic, format and number of questions and generates questions
 
+@traceable
 async  def get_quiz(topic,num_questions,chunks,format):
     #get the context by joining chunks
     context="\n".join(chunks)
