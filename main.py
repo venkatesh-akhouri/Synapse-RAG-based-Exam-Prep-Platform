@@ -19,8 +19,6 @@ GROQ_API_KEY=os.getenv("GROQ_API_KEY")
 #initiatise the embedder class
 embedder=Embedder(EMBEDDINGS)
 
-
-
 app = FastAPI()
 
 app.add_middleware(
@@ -46,6 +44,8 @@ async def upload_files(files: list[UploadFile]):
         
         parser=ParserFactory.call_parser(temp_path)
         parsed_content=parser.parse()
+        #change the file name t original file
+        parsed_content['file_name']=file.filename
         os.unlink(temp_path)
     
         #chunk the parsed content
