@@ -4,8 +4,13 @@ from exception import DocumentParsingError
 class PPTParser:
     def __init__(self, ppt_path):
         self.ppt_path = ppt_path
-        self.ppt = Presentation(self.ppt_path)
-
+        try:
+            self.ppt = Presentation(self.ppt_path)
+        
+        except Exception as e:
+            raise DocumentParsingError("Error loading ppt file")
+        
+        
     # function to parse the ppt
     def parse(self):
         content = ""
