@@ -1,4 +1,5 @@
 from langchain_community.document_loaders import Docx2txtLoader
+from exception import DocumentParsingError
 
 
 class DocxParser:
@@ -8,8 +9,12 @@ class DocxParser:
     
     def parse(self):
         document = self.loader.load()
-        page_conetnt=document[0].page_content
-        cleaned_page_content=" ".join(page_conetnt.split())
+        try:
+            page_conetnt=document[0].page_content
+            cleaned_page_content=" ".join(page_conetnt.split())
+        except Exception:
+            raise DocumentParsingError("Error Parsing Document")
+        
         
         return {
             "file_name": self.docx_file_path,

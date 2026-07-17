@@ -1,4 +1,5 @@
 from langchain_community.document_loaders import PyPDFLoader
+from exception import DocumentParsingError
 
 
 #class for loading pdf files
@@ -11,15 +12,20 @@ class PDFparser:
     
     def parse(self):
         content=""
-        documents=self.loader.load()
-        for document in documents:
-            metadata=document.metadata #return a dict
-            page_number=metadata['page']+1
-            page_content=" ".join(document.page_content.split())
-            page_num="PAGE: "+str(page_number)+" "
-            content=content+page_num+page_content
+        try:
+            documents=self.loader.load()
         
-        file_name=documents[0].metadata['source']
+            for document in documents:
+                metadata=document.metadata #return a dict
+                page_number=metadata['page']+1
+                page_content=" ".join(document.page_content.split())
+                page_num="PAGE: "+str(page_number)+" "
+                content=content+page_num+page_content
+        
+        
+            file_name=documents[0].metadata['source']
+        except Exception as e:
+            raise DocumentParsingError("Error parsing PDF file")
         
         return {
             'file_name': file_name,
