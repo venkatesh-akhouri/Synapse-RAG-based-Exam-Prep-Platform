@@ -8,8 +8,9 @@ class DocxParser:
         self.loader = Docx2txtLoader(file_path=self.docx_file_path)
     
     def parse(self):
-        document = self.loader.load()
+        
         try:
+            document = self.loader.load()
             page_conetnt=document[0].page_content
             cleaned_page_content=" ".join(page_conetnt.split())
         except Exception:
