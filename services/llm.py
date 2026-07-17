@@ -3,7 +3,9 @@ from groq import AsyncGroq
 from prompts import SYSTEM_PROMPT,get_quiz_prompt
 from dotenv import load_dotenv
 import json
+from json import JSONDecodeError
 from langsmith import traceable
+from exception import LLMGeneratorError
 
 load_dotenv()
 
@@ -22,14 +24,18 @@ async def get_answer(query,chunks):
     joined_chunks="\n".join(chunks)
     
     #now these joined chunks become the message from user
-    response=await groq_client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{"role":"system",
-                   "content":SYSTEM_PROMPT},
-                  {"role":"user",
-                   "content":f"Context: {joined_chunks}\n query: {query}"}]
-        
-    )
+    try:
+        response=await groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role":"system",
+                       "content":SYSTEM_PROMPT},
+                      {"role":"user",
+                       "content":f"Context: {joined_chunks}\n query: {query}"}]
+            
+        )
+    except Exception as e:
+        raise LLMGeneratorError(f"Unable to conenct to LLM {e}")
+    
     
     return response.choices[0].message.content
 
@@ -45,13 +51,23 @@ async  def get_quiz(topic,num_questions,chunks,format):
     quiz_prompt=get_quiz_prompt(format,num_questions)
     
     #these joined chunks go into llm
-    response=await groq_client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{
-            "role":"system","content":quiz_prompt},
-            {"role":"user","content":f"Topic : {topic}\n\nContext: {context}"
-        }]
-    )
+    #wrap inside try block if failed to generate quiz
+    try:
+        response=await groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{
+                "role":"system","content":quiz_prompt},
+                {"role":"user","content":f"Topic : {topic}\n\nContext: {context}"
+            }]
+        )
+    except Exception as e:
+        raise LLMGeneratorError(f"Unable to conenct to generate quiz {e}")
+    
     
     results=response.choices[0].message.content
-    return json.loads(results)
+    #exception handling for quiz generation
+    try:
+        return json.loads(results)
+    except JSONDecodeError as e:
+        raise LLMGeneratorError(f"Unable to decode json {e}")
+    
