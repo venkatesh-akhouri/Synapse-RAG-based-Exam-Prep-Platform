@@ -3,8 +3,11 @@ from DataIngestion.Parsers.PPTParser import PPTParser
 from DataIngestion.Parsers.DocxParser import DocxParser
 from DataIngestion.chunker import StructuralChunker,SemanticChunker
 from langchain_huggingface import HuggingFaceEmbeddings
+from exception import UnsupportedFileError
 
 EMBEDDINGS=HuggingFaceEmbeddings(model_name='sentence-transformers/all-mpnet-base-v2')
+
+
 
 class ParserFactory:
     @staticmethod
@@ -15,6 +18,8 @@ class ParserFactory:
             return DocxParser(filepath)
         elif filepath.endswith('.pptx') or filepath.endswith('.ppt'):
             return PPTParser(filepath)
+        else:
+            raise UnsupportedFileError("File type not supported")
         
         
 class ChunkingFactory:
