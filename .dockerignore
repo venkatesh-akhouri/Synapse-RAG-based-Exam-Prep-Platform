@@ -1,0 +1,7 @@
+.venv
+.env
+evaluation
+chroma_data
+.git
+.claude
+__pycache__
