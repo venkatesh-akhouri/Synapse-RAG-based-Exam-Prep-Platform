@@ -6,7 +6,7 @@ RUN pip install uv
 
 COPY pyproject.toml .
 
-RUN uv pip install --system -- no-cache -r pyproject.toml
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 RUN python -c "from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction; SentenceTransformerEmbeddingFunction(model_name='all-mpnet-base-v2')"
 
